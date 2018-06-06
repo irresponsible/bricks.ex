@@ -24,7 +24,7 @@ Annoyances:
 
 alias Bricks.Connector.Unix
 alias Bricks.Client.Simple
-alias Bricks.{Client, Connect, Socket, Sockets}
+alias Bricks.{Client, Socket, Sockets}
 
 # Here we will connect to a unix socket for a fictional echo service
 # and verify it echoes correctly
