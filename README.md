@@ -6,11 +6,9 @@ A uniform low-level API over unix domain sockets, tcp and tcp/tls connections
 
 NOT ON HEX YET
 
-Broken:
-- Unix socket tests (code works, tests don't)
-
 Missing:
 - Tls connector and socket (pending tidy of old code)
+- Any sort of connection pooling client
 
 Annoyances:
 
@@ -36,7 +34,7 @@ def main() do
   # Let's start in active mode where we will be sent packets as messages
   :ok = Sockets.actify(h)
   :ok = Socket.send_data(h, "hello world\n")
-  # recv_msg is a wrapper around receive
+  # recv_active is a wrapper around receive
   {:ok, "hello world\n"} = Socket.recv_active(h)
 
   # And here's how you use passive mode
@@ -92,21 +90,12 @@ Connections will be closed when they are no longer required, there is no reuse o
 Bricks.Client.Simple.new(connector)
 ```
 
-#### Pooler Client
-
-The pooler client will use Pooler to manage a pool of connections to a
-single host. It's ideal for limiting concurrent connections to a
-single service you depend on.
-
-```elixir
-
-```
-
 ### Sockets
 
-### TCP
+#### TCP
 
+The TCP socket is powered by `:gen_tcp`
 
-### TLS
+<!-- #### TLS -->
 
 
