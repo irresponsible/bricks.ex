@@ -25,26 +25,5 @@ defmodule Bricks do
   defprotocolEx ToIoData do
     def to_iodata(self)
   end
+
 end
-defmodule Bricks.Sockets do
-  alias Bricks.Socket
-
-  def actify(socket, times \\ true)
-  def actify(socket, times)
-  when times === true or (is_integer(times) and times > 0 ),
-    do: Socket.setopts(socket, [{:active, times}])
-  def actify(_, _), do: {:error, {:invalid, :times}}
-
-  def passify(socket) do
-    with :ok <- Socket.setopts(socket, active: false),
-      do: passify_h(socket, "")
-  end
-  defp passify_h(socket, acc) do
-    case Socket.recv_active(socket, 0) do
-      {:ok, data} -> passify_h(socket, acc <> data)
-      {:error, :timeout} -> {:ok, acc}
-      other -> other
-    end
-  end
-end
-

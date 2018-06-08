@@ -23,15 +23,15 @@ defimplEx SocketTcp, %Tcp{}, for: Socket do
 
   def recv_passive(tcp, size, timeout) do
     with {:error, reason} <- :gen_tcp.recv(tcp.socket, size, timeout),
-      do: {:error, {:tcp_recv_active, reason}}
+      do: {:error, {:tcp_recv_passive, reason}}
   end
 
   def recv_active(tcp, timeout) do
     s = tcp.socket
     receive do
       {:tcp, ^s, data} -> {:ok, data}
-      {:tcp_error, ^s, reason} -> {:error, {:tcp_receive_passive, reason}}
-      {:tcp_closed, ^s} -> {:error, {:tcp_receive_passive, :closed}}
+      {:tcp_error, ^s, reason} -> {:error, {:tcp_receive_active, reason}}
+      {:tcp_closed, ^s} -> {:error, {:tcp_receive_active, :closed}}
     after
       timeout -> {:error, :timeout}
     end

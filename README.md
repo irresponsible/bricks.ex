@@ -10,11 +10,16 @@ Missing:
 - Tls connector and socket (pending tidy of old code)
 - Any sort of connection pooling client
 
+Strange bugs:
+- Tests fail when I uncap the size of Gen.header_map. It's like
+  they're not receiving all the data before the socket is closed, odd.
+
 Annoyances:
 
 - gen_tcp sockets start active for tcp and passive for unix.
   No, I haven't filed an erlang bug about it because I was too pissed off with jira to finish the process.
   Workaround: Use Sockets.actify, Sockets.passify to set it explicitly the way you want it.
+- Going passive necessitates clearing the mailbox of existing messages
 
 ## Usage
 
@@ -22,24 +27,24 @@ Annoyances:
 
 alias Bricks.Connector.Unix
 alias Bricks.Client.Simple
-alias Bricks.{Client, Socket, Sockets}
+alias Bricks.{Clients, Sockets}
 
 # Here we will connect to a unix socket for a fictional echo service
 # and verify it echoes correctly
 def main() do
   unix = Unix.new("/var/run/echo.sock")
   client = Simple.new(unix)
-  {:ok, conn} = Client.connect(client)
+  {:ok, conn} = Clients.connect(client)
   
   # Let's start in active mode where we will be sent packets as messages
   :ok = Sockets.actify(h)
-  :ok = Socket.send_data(h, "hello world\n")
+  :ok = Sockets.send_data(h, "hello world\n")
   # recv_active is a wrapper around receive
   {:ok, "hello world\n"} = Socket.recv_active(h)
 
   # And here's how you use passive mode
   {:ok,""} = Sockets.passify(h) # if the server sent more in the meantime, won't be ""
-  :ok = Socket.send_data(h, "hello world\n")
+  :ok = Sockets.send_data(h, "hello world\n")
   {:ok, "hello world \n"} = Socket.recv_passive(h, 12)
 end
 

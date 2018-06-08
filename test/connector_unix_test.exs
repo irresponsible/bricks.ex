@@ -1,8 +1,9 @@
 defmodule Bricks.Connector.UnixTest do
   use ExUnit.Case
-  alias Bricks.{Client, Connector, Socket}
+  alias Bricks.Connector
   import BricksTest.EchoServices
   alias Bricks.Connector.Unix
+
   test "echo" do
     {:ok, path} = echo_unix()
     unix = Unix.new(path)
