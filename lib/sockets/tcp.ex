@@ -51,6 +51,6 @@ defimplEx SocketTcp, %Tcp{}, for: Socket do
   end
 
   def close(tcp),
-    do: :gen_tcp.close(tcp)
+    do: :gen_tcp.close(tcp.socket)
 
 end

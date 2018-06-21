@@ -1,13 +1,14 @@
 defmodule Bricks.Connector.Unix do
-  @enforce_keys [:path, :tcp_opts]
+  @enforce_keys [:path, :tcp_opts, :step_timeout]
   defstruct @enforce_keys
   alias Bricks.Connector
   alias Bricks.Connector.Unix
   import ProtocolEx
   @default_tcp_opts [:binary, {:active, false}]
+  @default_step_timeout 3000
 
-  def new(path, tcp_opts \\ @default_tcp_opts),
-    do: %Unix{path: path, tcp_opts: tcp_opts}
+  def new(path, step_timeout \\ @default_step_timeout, tcp_opts \\ @default_tcp_opts),
+    do: %Unix{path: path, tcp_opts: tcp_opts, step_timeout: step_timeout}
 
   defimplEx UnixConnector, %Unix{}, for: Connector do
     alias Bricks.Socket.Tcp
