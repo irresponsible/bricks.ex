@@ -1,5 +1,5 @@
 defmodule Bricks.Sockets do
-  alias Bricks.Socket
+  alias Bricks.{Socket, Sockets}
 
   @doc """
   """
@@ -31,6 +31,25 @@ defmodule Bricks.Sockets do
   @doc """
   """
   defdelegate transfer(socket, pid), to: Socket
+
+  def read(socket, limit, activity, step_timeout \\ nil) do
+    step_timeout = if is_nil(step_timeout), do: socket.step_timeout, else: step_timeout
+    if is_nil(activity) do
+      case active?(socket) do
+	{:ok, activity} -> read(socket, limit, activity, step_timeout)
+	{:error, reason} -> {:error, {:read, reason}, activity}
+      end
+    else
+      ret = case activity do
+	      false -> Sockets.recv_passive(socket, limit, step_timeout)
+	      true -> Sockets.recv_active(socket)
+	      _ -> {:error, {:unknown_activity, activity}}
+	    end
+      with {:ok, ret} <- ret,
+	do: {:ok, ret, activity}
+    end
+  end
+  
 
   @doc """
   Turns the socket passive, clearing any active data out of the mailbox
