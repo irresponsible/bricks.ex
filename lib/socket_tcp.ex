@@ -3,6 +3,7 @@ defmodule Bricks.Socket.Tcp do
   defstruct @enforce_keys
   alias Bricks.Socket
   alias Bricks.Socket.Tcp
+  alias Bricks.Error.{Closed, Posix, Timeout}
 
   @default_step_timeout 5000
   defp new(socket, owner, step_timeout \\ @default_step_timeout),
@@ -27,20 +28,30 @@ defmodule Bricks.Socket.Tcp do
   ## Calls
   
   def handle_call({:getopts, opts}, _from, tcp) do
-    ret = :inet.getopts(tcp.socket, opts)
-    {:reply, ret, tcp}
+    case :inet.getopts(tcp.socket, opts) do
+      {:ok, opts} -> {:reply, {:ok, opts}, tcp}
+      {:error, reason} -> {:reply, {:error, Posix.new(reason)}, tcp}
+    end
   end
   def handle_call({:setopts, opts}, _from, tcp) do
-    ret = :inet.setopts(tcp.socket, opts)
-    {:reply, ret, tcp}
+    case :inet.setopts(tcp.socket, opts) do
+      :ok -> {:reply, :ok, tcp}
+      {:error, reason} -> {:reply, {:error, Posix.new(reason)}, tcp}
+    end
   end
   def handle_call({:recv, size, timeout}, _from, tcp) do
-    ret = :gen_tcp.recv(tcp.socket, size, timeout)
-    {:reply, ret, tcp}
+    case :gen_tcp.recv(tcp.socket, size, timeout) do
+      {:ok, data} -> {:reply, {:ok, data}, tcp}
+      {:error, :closed} -> {:reply, {:error, Closed.new()}, tcp}
+      {:error, reason}  -> {:reply, {:error, Posix.new(reason)}, tcp}
+    end
   end
   def handle_call({:send, data}, _from, tcp) do
-    ret = :gen_tcp.send(tcp.socket, data)
-    {:reply, ret, tcp}
+    case :gen_tcp.send(tcp.socket, data) do
+      :ok -> {:reply, :ok, tcp}
+      {:error, :closed} -> {:reply, {:error, Closed.new()}, tcp}
+      {:error, reason}  -> {:reply, {:error, Posix.new(reason)}, tcp}
+    end
   end
   def handle_call(:close, _from, tcp) do
     ret = :gen_tcp.close(tcp.socket)

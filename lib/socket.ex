@@ -1,6 +1,6 @@
 defmodule Bricks.Socket do
   alias Bricks.Socket
-
+  alias Bricks.Error.Timeout
   def recv(socket, size, timeout), do: GenServer.call(socket, {:recv, size, timeout}, timeout)
 
   def send_data(socket, data), do: GenServer.call(socket, {:send, data})
@@ -14,11 +14,11 @@ defmodule Bricks.Socket do
   def transfer!(socket, to) when is_pid(to), do: GenServer.call(socket, {:transfer, to})
 
   def read(socket, limit, activity \\ nil, step_timeout \\ nil)
-  def read(socket, limit, activity, nil), do: read(socket, limit, activity, socket.step_timeout)
+  def read(socket, limit, activity, nil), do: read(socket, limit, activity, 5000)
   def read(socket, limit, nil, step_timeout) do
     case active?(socket) do
       {:ok, activity} -> read(socket, limit, activity, step_timeout)
-      {:error, reason} -> {:error, {{:read, reason}, nil}}
+      {:error, reason} -> {:error, reason, nil}
     end
   end
   def read(socket, limit, activity, step_timeout) do
@@ -37,7 +37,7 @@ defmodule Bricks.Socket do
 	      {:error, reason} -> {:error, reason}
 	    end
 	after
-	  step_timeout -> {:error, :timeout}
+	  step_timeout -> {:error, Timeout.new(step_timeout)}
 	end
     end
   end
