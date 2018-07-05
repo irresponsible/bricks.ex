@@ -1,56 +1,69 @@
 defmodule Bricks.Socket.Tcp do
-  @enforce_keys [:socket, :step_timeout]
+  @enforce_keys [:socket, :step_timeout, :owner]
   defstruct @enforce_keys
+  alias Bricks.Socket
   alias Bricks.Socket.Tcp
 
   @default_step_timeout 5000
-  def new(socket, step_timeout \\ @default_step_timeout),
-    do: %Tcp{socket: socket, step_timeout: step_timeout}
-end
+  defp new(socket, owner, step_timeout \\ @default_step_timeout),
+    do: %Tcp{socket: socket, owner: owner, step_timeout: step_timeout}
 
-import ProtocolEx
-
-alias Bricks.Socket
-alias Bricks.Socket.Tcp # {Tcp, Tls}
-defimplEx SocketTcp, %Tcp{}, for: Socket do
-  @priority -1
-  def socket(tcp), do: tcp.socket
-
-  def send_data(tcp, data) do
-    with {:error, reason} <- :gen_tcp.send(tcp.socket, data),
-      do: {:error, {:tcp_send, reason}}
-  end
-
-  def recv_passive(tcp, size, timeout) do
-    with {:error, reason} <- :gen_tcp.recv(tcp.socket, size, timeout),
-      do: {:error, {:tcp_recv_passive, reason}}
-  end
-
-  def recv_active(tcp, timeout) do
-    s = tcp.socket
-    receive do
-      {:tcp, ^s, data} -> {:ok, data}
-      {:tcp_error, ^s, reason} -> {:error, {:tcp_receive_active, reason}}
-      {:tcp_closed, ^s} -> {:error, {:tcp_receive_active, :closed}}
-    after
-      timeout -> {:error, :timeout}
+  def start_link(socket, step_timeout) do
+    me = self()
+    case GenServer.start_link(__MODULE__, {socket, step_timeout, me}) do
+      {:ok, who} ->
+	:ok = :gen_tcp.controlling_process(socket, who)
+	{:ok, who}
+      other -> other
     end
   end
-  def getopts(tcp, opts) when is_list(opts) do
-    with {:error, reason} <- :inet.getopts(tcp.socket, opts),
-      do: {:error, {:tcp_getopts, reason}}
-  end
-  def setopts(tcp, opts) when is_list(opts) do
-    with {:error, reason} <- :inet.setopts(tcp.socket, opts),
-      do: {:error, {:tcp_setopts, reason}}
+
+  # Callbacks
+
+  def init({socket, step_timeout, owner}) do
+    {:ok, new(socket, owner, step_timeout)}
   end
 
-  def transfer(tcp, pid) do
-    with {:error, reason} <- :gen_tcp.controlling_process(tcp.socket, pid),
-      do: {:error, {:tcp_transfer, reason}}
+  ## Calls
+  
+  def handle_call({:getopts, opts}, _from, tcp) do
+    ret = :inet.getopts(tcp.socket, opts)
+    {:reply, ret, tcp}
+  end
+  def handle_call({:setopts, opts}, _from, tcp) do
+    ret = :inet.setopts(tcp.socket, opts)
+    {:reply, ret, tcp}
+  end
+  def handle_call({:recv, size, timeout}, _from, tcp) do
+    ret = :gen_tcp.recv(tcp.socket, size, timeout)
+    {:reply, ret, tcp}
+  end
+  def handle_call({:send, data}, _from, tcp) do
+    ret = :gen_tcp.send(tcp.socket, data)
+    {:reply, ret, tcp}
+  end
+  def handle_call(:close, _from, tcp) do
+    ret = :gen_tcp.close(tcp.socket)
+    {:reply, ret, tcp}
+  end
+  def handle_call({:transfer, to}, _from, tcp) do
+    Process.link(to)
+    {:reply, :ok, %{ tcp | owner: to }}
   end
 
-  def close(tcp),
-    do: :gen_tcp.close(tcp.socket)
+  ## Infos
+
+  def handle_info({:tcp, socket, data}, %Tcp{socket: s, owner: owner}=tcp) when socket === s do
+    send owner, {Socket, self(), {:data, data}}
+    {:noreply, tcp}
+  end
+  def handle_info({:tcp_error, socket, reason}, %Tcp{socket: s, owner: owner}=tcp) when socket === s do
+    send owner, {Socket, self(), {:error, reason}}
+    {:noreply, tcp}
+  end
+  def handle_info({:tcp_closed, socket}, %Tcp{socket: s, owner: owner}=tcp) when socket === s do
+    send owner, {Socket, self(), :closed}
+    {:noreply, tcp}
+  end
 
 end

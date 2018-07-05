@@ -15,7 +15,7 @@ defmodule Bricks.Connector.Tcp do
     alias Bricks.Socket.Tcp
     def connect(tcp) do
       case :gen_tcp.connect(tcp.host, tcp.port, tcp.tcp_opts, tcp.step_timeout) do
-	{:ok, socket} -> {:ok, Tcp.new(socket)}
+	{:ok, socket} -> Tcp.start_link(socket, tcp.step_timeout)
 	{:error, reason} -> {:error, {:tcp_connect, reason}}
       end
     end

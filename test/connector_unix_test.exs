@@ -1,6 +1,6 @@
 defmodule Bricks.Connector.UnixTest do
   use ExUnit.Case
-  alias Bricks.Connector
+  alias Bricks.{Connector, Socket}
   import BricksTest.EchoServices
   alias Bricks.Connector.Unix
 
@@ -8,7 +8,8 @@ defmodule Bricks.Connector.UnixTest do
     {:ok, path} = echo_unix()
     unix = Unix.new(path)
     {:ok, sock} = Connector.connect(unix)
-    :ok = :gen_tcp.send(sock.socket, "hello world\n")
-    {:ok, "hello world\n"} = :gen_tcp.recv(sock.socket, 0)
+    {:ok, ""} = Socket.passify(sock)
+    :ok = Socket.send_data(sock, "hello world\n")
+    {:ok, "hello world\n", false} = Socket.read(sock, 0, false, 1000)
   end
 end

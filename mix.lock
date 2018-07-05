@@ -2,6 +2,6 @@
   "cowlib": {:hex, :cowlib, "2.3.0", "bbd58ef537904e4f7c1dd62e6aa8bc831c8183ce4efa9bd1150164fe15be4caa", [:rebar3], [], "hexpm"},
   "dbg": {:hex, :dbg, "1.0.1", "9c29813e5df8b4d275325416523d511e315656b8ac27a60519791f9cf476d83d", [:mix], [], "hexpm"},
   "dialyxir": {:hex, :dialyxir, "0.5.1", "b331b091720fd93e878137add264bac4f644e1ddae07a70bf7062c7862c4b952", [:mix], [], "hexpm"},
-  "protocol_ex": {:hex, :protocol_ex, "0.3.22", "91da82f876d059e9f6c71b8dee74a75ee8731a05bb82544da9a4916f6644e300", [:mix], [], "hexpm"},
+  "protocol_ex": {:hex, :protocol_ex, "0.4.0", "e9393f7a256f945a9eb557b44ac06c21a50f40064e4acda449da61b458e6ac52", [:mix], [], "hexpm"},
   "stream_data": {:hex, :stream_data, "0.4.2", "fa86b78c88ec4eaa482c0891350fcc23f19a79059a687760ddcf8680aac2799b", [:mix], [], "hexpm"},
 }

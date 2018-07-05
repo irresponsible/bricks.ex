@@ -32,7 +32,7 @@ defmodule Bricks.MixProject do
   defp deps do
     [
       # {:protocol_ex, git: "https://github.com/OvermindDL1/protocol_ex", branch: "master"},
-      {:protocol_ex, "~> 0.3.0"},
+      {:protocol_ex, "~> 0.4.0"},
       {:dbg, "~> 1.0", only: :dev},
       {:dialyxir, "~> 0.5", only: :dev, runtime: false},
       {:stream_data, "~> 0.4", optional: true},
