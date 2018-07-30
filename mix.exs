@@ -21,7 +21,7 @@ defmodule Bricks.MixProject do
   end
 
   defp extra_applications(:dev), do: extra_applications(:test)
-  defp extra_applications(:test), do: [:stream_data | extra_applications(123)]
+  defp extra_applications(:test), do: [:stream_data | extra_applications(:default)]
   defp extra_applications(_), do: [:logger]
 
   # Specifies which paths to compile per environment.
