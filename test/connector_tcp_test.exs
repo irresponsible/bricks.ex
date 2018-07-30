@@ -1,8 +1,10 @@
 defmodule Bricks.Connector.TcpTest do
   use ExUnit.Case
-  alias Bricks.{Connector,Socket}
   import BricksTest.EchoServices
+
+  alias Bricks.{Connector,Socket}
   alias Bricks.Connector.Tcp
+
   test "echo passive" do
     {:ok, port} = echo_tcp()
     tcp = Tcp.new({127,0,0,1}, port)
