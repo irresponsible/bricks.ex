@@ -7,9 +7,6 @@ defmodule Bricks.Connector.Tcp do
   alias Bricks.Connector
   alias Bricks.Connector.Tcp
 
-  @default_step_timeout 5000
-  @default_tcp_opts [:binary]
-
   @type ipv4 :: {0..255, 0..255, 0..255, 0..255}
   @type ipv6 :: {0..65535,
                  0..65535,
@@ -29,6 +26,9 @@ defmodule Bricks.Connector.Tcp do
     step_timeout: integer
   }
 
+  @default_tcp_opts [:binary]
+  @default_step_timeout 5000
+
   @spec new(hostname, integer, integer, [any]) :: t
 
   @doc """
@@ -44,13 +44,13 @@ defmodule Bricks.Connector.Tcp do
               step_timeout: step_timeout }
 
   defp format_hostname(hostname) when is_binary(hostname) do
-    case :inet.parse_address(hostname) do
-      {:ok, address} ->
-        address
-
-      _ ->
-        String.to_charlist(hostname)
-    end
+    hostname
+    |> String.to_charlist
+    |> :inet.parse_address
+    |> case do
+         {:ok, address} -> address
+         _              -> hostname
+       end
   end
 
   defp format_hostname(hostname),
