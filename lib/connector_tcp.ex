@@ -16,12 +16,13 @@ defmodule Bricks.Connector.Tcp do
                  0..65535,
                  0..65535,
                  0..65535}
+  @type port_number :: {0..65535}
 
   @type hostname :: binary | ipv4 | ipv6
 
   @type t :: %Tcp{
     host: hostname,
-    port: integer,
+    port: port_number,
     tcp_opts: [any],
     step_timeout: integer
   }
@@ -29,7 +30,7 @@ defmodule Bricks.Connector.Tcp do
   @default_tcp_opts [:binary]
   @default_step_timeout 5000
 
-  @spec new(hostname, integer, integer, [any]) :: t
+  @spec new(hostname, port_number, integer, [any]) :: t
 
   @doc """
   Create a new TCP connector struct.
@@ -65,6 +66,5 @@ defmodule Bricks.Connector.Tcp do
         {:error, reason} -> {:error, {:tcp_connect, reason}}
       end
     end
-
   end
 end

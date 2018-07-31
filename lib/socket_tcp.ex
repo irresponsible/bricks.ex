@@ -1,11 +1,13 @@
 defmodule Bricks.Socket.Tcp do
   @enforce_keys [:socket, :step_timeout, :owner]
   defstruct @enforce_keys
+
   alias Bricks.Socket
   alias Bricks.Socket.Tcp
-  alias Bricks.Error.{Closed, Posix, Timeout}
+  alias Bricks.Error.{Closed, Posix}
 
   @default_step_timeout 5000
+
   defp new(socket, owner, step_timeout \\ @default_step_timeout),
     do: %Tcp{socket: socket, owner: owner, step_timeout: step_timeout}
 
@@ -13,8 +15,8 @@ defmodule Bricks.Socket.Tcp do
     me = self()
     case GenServer.start_link(__MODULE__, {socket, step_timeout, me}) do
       {:ok, who} ->
-	:ok = :gen_tcp.controlling_process(socket, who)
-	{:ok, who}
+        :ok = :gen_tcp.controlling_process(socket, who)
+        {:ok, who}
       other -> other
     end
   end
@@ -26,7 +28,7 @@ defmodule Bricks.Socket.Tcp do
   end
 
   ## Calls
-  
+
   def handle_call({:getopts, opts}, _from, tcp) do
     case :inet.getopts(tcp.socket, opts) do
       {:ok, opts} -> {:reply, {:ok, opts}, tcp}
