@@ -1,13 +1,14 @@
 defmodule Bricks.Client.SimpleTest do
   use ExUnit.Case
-  alias Bricks.{Client, Socket}
   import BricksTest.EchoServices
+
+  alias Bricks.{Client, Socket}
   alias Bricks.Connector.Tcp
   alias Bricks.Client.Simple
 
   test "echo passive" do
     {:ok, port} = echo_tcp()
-    tcp = Tcp.new({127,0,0,1}, port)
+    tcp = Tcp.new({127, 0, 0, 1}, port)
     client = Simple.new(tcp, 1000)
     {:ok, sock} = Client.connect(client)
     {:ok, ""} = Socket.passify(sock)
@@ -17,7 +18,7 @@ defmodule Bricks.Client.SimpleTest do
 
   test "echo active" do
     {:ok, port} = echo_tcp()
-    tcp = Tcp.new({127,0,0,1}, port)
+    tcp = Tcp.new({127, 0, 0, 1}, port)
     client = Simple.new(tcp, 1000)
     {:ok, sock} = Client.connect(client)
     :ok = Socket.actify(sock)

@@ -8,24 +8,17 @@ defmodule Bricks.Connector.Tcp do
   alias Bricks.Connector.Tcp
 
   @type ipv4 :: {0..255, 0..255, 0..255, 0..255}
-  @type ipv6 :: {0..65535,
-                 0..65535,
-                 0..65535,
-                 0..65535,
-                 0..65535,
-                 0..65535,
-                 0..65535,
-                 0..65535}
+  @type ipv6 :: {0..65535, 0..65535, 0..65535, 0..65535, 0..65535, 0..65535, 0..65535, 0..65535}
   @type port_number :: {0..65535}
 
   @type hostname :: binary | ipv4 | ipv6
 
   @type t :: %Tcp{
-    host: hostname,
-    port: port_number,
-    tcp_opts: [any],
-    step_timeout: integer
-  }
+          host: hostname,
+          port: port_number,
+          tcp_opts: [any],
+          step_timeout: integer
+        }
 
   @default_tcp_opts [:binary]
   @default_step_timeout 5000
@@ -39,19 +32,21 @@ defmodule Bricks.Connector.Tcp do
   step timeout and a list of options to be passed to `:gen_tcp.connect`.
   """
   def new(host, port, step_timeout \\ @default_step_timeout, tcp_opts \\ @default_tcp_opts),
-    do: %Tcp{ host: format_hostname(host),
-              port: port,
-              tcp_opts: tcp_opts,
-              step_timeout: step_timeout }
+    do: %Tcp{
+      host: format_hostname(host),
+      port: port,
+      tcp_opts: tcp_opts,
+      step_timeout: step_timeout
+    }
 
   defp format_hostname(hostname) when is_binary(hostname) do
     hostname
-    |> String.to_charlist
-    |> :inet.parse_address
+    |> String.to_charlist()
+    |> :inet.parse_address()
     |> case do
-         {:ok, address} -> address
-         _              -> hostname
-       end
+      {:ok, address} -> address
+      _ -> hostname
+    end
   end
 
   defp format_hostname(hostname),

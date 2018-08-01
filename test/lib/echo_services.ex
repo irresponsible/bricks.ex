@@ -9,11 +9,13 @@ defmodule BricksTest.EchoServices do
   end
 
   def echo_unix() do
-    case :file.delete(@test_sock) do # It's okay for it not to exist but nothing else
+    # It's okay for it not to exist but nothing else
+    case :file.delete(@test_sock) do
       :ok -> :ok
       {:error, :enoent} -> :ok
     end
-    {:ok, listen} = :gen_tcp.listen(0, [:binary, {:ifaddr,{:local,@test_sock}}])
+
+    {:ok, listen} = :gen_tcp.listen(0, [:binary, {:ifaddr, {:local, @test_sock}}])
     spawn_link(fn -> echo(listen) end)
     {:ok, @test_sock}
   end
@@ -23,9 +25,11 @@ defmodule BricksTest.EchoServices do
 
   def echo(listen) do
     {:ok, socket} = :gen_tcp.accept(listen, 1000)
+
     receive do
       {:tcp, ^socket, data} -> :gen_tcp.send(socket, data)
     end
+
     :gen_tcp.close(socket)
   end
 end

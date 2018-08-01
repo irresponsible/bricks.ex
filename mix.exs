@@ -8,15 +8,15 @@ defmodule Bricks.MixProject do
       elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      elixirc_paths: elixirc_paths(Mix.env),
-      compilers: Mix.compilers ++ [:protocol_ex],
+      elixirc_paths: elixirc_paths(Mix.env()),
+      compilers: Mix.compilers() ++ [:protocol_ex]
     ]
   end
 
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: extra_applications(Mix.env),
+      extra_applications: extra_applications(Mix.env())
     ]
   end
 
@@ -26,7 +26,7 @@ defmodule Bricks.MixProject do
 
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/lib"]
-  defp elixirc_paths(_),     do: ["lib"]
+  defp elixirc_paths(_), do: ["lib"]
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
@@ -35,7 +35,7 @@ defmodule Bricks.MixProject do
       {:protocol_ex, "~> 0.4.0"},
       {:dbg, "~> 1.0", only: :dev},
       {:dialyxir, "~> 0.5", only: :dev, runtime: false},
-      {:stream_data, "~> 0.4", optional: true},
+      {:stream_data, "~> 0.4", optional: true}
     ]
   end
 end

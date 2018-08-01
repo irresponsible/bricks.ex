@@ -1,4 +1,13 @@
 defmodule Bricks.Client.Simple do
+  @moduledoc """
+  A minimal client for handling TCP connections.
+
+  # Examples
+
+    iex> tcp_client = Simple.new(Bricks.Connector.Tcp("localhost", 25))
+    iex> unix_client = Simple.new(Bricks.Connector.Unix("/var/run/echo.sock"))
+  """
+
   @enforce_keys [:timeout, :connector]
   defstruct @enforce_keys
 
@@ -6,8 +15,13 @@ defmodule Bricks.Client.Simple do
 
   @default_timeout 30_000
 
+  @doc """
+  Create a new client using a socket connector (i.e. `Bricks.Connector`).
+  Accepts an optional timeout parameter which indicates how many
+  milliseconds
+  """
   def new(connector, timeout \\ @default_timeout),
-    do: %Simple{ timeout: timeout, connector: connector}
+    do: %Simple{timeout: timeout, connector: connector}
 end
 
 import ProtocolEx
