@@ -1,0 +1,30 @@
+# Copyright (c) 2018 James Laver
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+defmodule Bricks.Error.Closed do
+  @moduledoc """
+  The Socket was closed
+  """
+  @enforce_keys []
+  defstruct @enforce_keys
+
+  alias Bricks.Error.Closed
+
+  @typedoc "The Socket was closed"
+  @type t :: %Closed{}
+
+  @spec new() :: t()
+  @doc "Creates a new `Closed`"
+  def new(), do: %Closed{}
+end
